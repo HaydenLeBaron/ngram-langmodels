@@ -67,9 +67,12 @@ def main():
             else:
                 # Increment unigram count
                 unsmoothed_freq_of_unigram[normalized_tok] += 1
-    print('freq_table: %s' % unsmoothed_freq_of_unigram)
+    #print('freq_table: %s' % unsmoothed_freq_of_unigram)
 
 
+    """
+    Calculate probability for each sentence
+    """
     '''
     [['this', 'is', 'the', 'structure', '.']
      ['it', 'looks', 'like', 'this', '.']]
