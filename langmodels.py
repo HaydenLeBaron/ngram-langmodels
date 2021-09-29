@@ -12,10 +12,14 @@ def prob_unigram(normalized_tok, freq_of_unigram, total_unigrams):
 # BKRMK
 def prob_of_sentence_unigram(sentence, freq_of_unigram, total_unigrams):
 
-    log_prob_sum = 0
+    log_prob_sum = 0.0
     for tok in sentence:
         normalized_tok = tok.lower()
-        log_prog_sum += math.log2(prob_unigram(normalized_tok, freq_of_unigram, total_unigrams))
+        prob_tok = prob_unigram(normalized_tok, freq_of_unigram, total_unigrams);
+
+        # don't plug in 0 to log
+        if prob_tok != 0:
+            log_prob_sum += math.log2(prob_tok)
     return log_prob_sum
 
 
@@ -59,10 +63,11 @@ def main():
             normalized_tok = tok.lower()
             if unsmoothed_freq_of_unigram.get(normalized_tok) is None:
                 # Haven't seen key yet => init count to 0
-                unsmoothed_freq_of_unigram[normalized_tok] = 0
+                unsmoothed_freq_of_unigram[normalized_tok] = 1
             else:
                 # Increment unigram count
                 unsmoothed_freq_of_unigram[normalized_tok] += 1
+    print('freq_table: %s' % unsmoothed_freq_of_unigram)
 
 
     '''
@@ -71,7 +76,9 @@ def main():
     '''
     sentence_to_prob = {}
     for sentence in test_file_tokens:
-        sentence_to_prob.[' '.join(sentence)] = prob_of_sentence_unigram(sentence, unsmoothed_freq_of_unigram, len(flatten_list_of_list(training_file_tokens)))
+        sentence_to_prob[' '.join(sentence)] = prob_of_sentence_unigram(sentence, unsmoothed_freq_of_unigram, len(flatten_list_of_list(training_file_tokens)))
+
+    print(sentence_to_prob)
 
 
 
