@@ -1,5 +1,6 @@
 import sys
 import math
+import copy
 
 PHI = '/phi/'
 
@@ -9,15 +10,17 @@ def flatten_list_of_list(lol):
 def prob_unigram(normalized_tok, freq_of_unigram, total_unigrams):
     return freq_of_unigram[normalized_tok] / total_unigrams
 
-def prob_bigram(normalized_tok_1, normalized_tok_2, freq_of_bigram, freq_of_unigram, phi_count):
+def prob_bigram(normalized_tok_1, normalized_tok_2, freq_of_bigram, freq_of_unigram, phi_count, do_smooth):
     #Pr(w{k}|w{k−1}) = Freq(w{k−1} w{k})/Freq(w{k−1}).
     #Pr(tok2|tok1)   = Freq(tok1 tok2) / Freq(tok1)
 
-
-    if freq_of_bigram.get((normalized_tok_1, normalized_tok_2)) is None: # Happens for never before seen bigram
+    if do_smooth and freq_of_bigram.get((normalized_tok_1, normalized_tok_2)) is None:
+        if freq_of_unigram.get(normalized_tok_1) == None:
+            return 1 / phi_count
+        else:
+            return 1 / freq_of_unigram[normalized_tok_1]
+    elif freq_of_bigram.get((normalized_tok_1, normalized_tok_2)) is None: # Happens for never before seen bigram
         return 0.0 # Probability of 0
-
-
     elif freq_of_unigram.get(normalized_tok_1) is None: # This happens when normalized_tok_1 == PHI. PHI == number of sentences
         return freq_of_bigram[(normalized_tok_1,
                                normalized_tok_2)] / phi_count
@@ -40,7 +43,7 @@ def prob_of_sentence_unigram(sentence, freq_of_unigram, total_unigrams):
             log_prob_sum += math.log2(prob_tok)
     return log_prob_sum
 
-def prob_of_sentence_bigram(sentence, freq_of_bigram, freq_of_unigram, phi_count):
+def prob_of_sentence_bigram(sentence, freq_of_bigram, freq_of_unigram, phi_count, do_smooth):
 
     log_prob_sum = 0.0
     for i in range(len(sentence)-1):
@@ -51,7 +54,8 @@ def prob_of_sentence_bigram(sentence, freq_of_bigram, freq_of_unigram, phi_count
                                              normalized_tok_2,
                                              freq_of_bigram,
                                              freq_of_unigram,
-                                             phi_count)
+                                             phi_count,
+                                             do_smooth)
         if  pr_wk_given_wk_minus_1 != 0:
             log_prob_sum += math.log2(pr_wk_given_wk_minus_1)
         else:
@@ -162,7 +166,8 @@ def main():
         prob_s = prob_of_sentence_bigram(sentence,
                                          unsmoothed_freq_of_bigram,
                                          unsmoothed_freq_of_unigram,
-                                         len(training_file_tokens))
+                                         len(training_file_tokens),
+                                         False)
 
         if prob_s is None:
             unsmoothed_bigram_sentence_to_prob[' '.join(sentence)] = 'undefined'
@@ -171,15 +176,51 @@ def main():
              # == phi_count
 
 
+    '''
+    Smoothen bigram frequency table
+    '''
+
+    # Add one to each frequency
+    smoothed_freq_of_bigram = copy.deepcopy(unsmoothed_freq_of_bigram)
+    for key in smoothed_freq_of_bigram.keys():
+        smoothed_freq_of_bigram[key] += 1
+
 
     # TODO: add one to each bigram (but not unigram) freqency. Then recalculate probabilities
+    """
+    Calculate smoothed bigram probability for each sentence
+    """
+    '''
+    [['/phi/', 'this', 'is', 'the', 'structure', '.']
+     ['/phi/', it', 'looks', 'like', 'this', '.']]
+    '''
+    smoothed_bigram_sentence_to_prob = {}
+    for sentence in test_file_tokens:
+        prob_s = prob_of_sentence_bigram(sentence,
+                                         smoothed_freq_of_bigram,
+                                         unsmoothed_freq_of_unigram,
+                                         len(training_file_tokens),
+                                         True)
+
+        if prob_s is None:
+            unsmoothed_bigram_sentence_to_prob[' '.join(sentence)] = 'undefined'
+        else:
+            smoothed_bigram_sentence_to_prob[' '.join(sentence)] = prob_s
+             # == phi_count
+
+
+
+
 
 
     '''
     Print output
     '''
     print('unigram_sentence_to_prob: %s\n' % unigram_sentence_to_prob)
+    print('----------------')
     print('unsmoothed_bigram_sentence_to_prob: %s\n' % unsmoothed_bigram_sentence_to_prob)
+    print('----------------')
+    print('smoothed_bigram_sentence_to_prob: %s\n' % smoothed_bigram_sentence_to_prob)
 
 
 
