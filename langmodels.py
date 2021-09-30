@@ -54,6 +54,8 @@ def prob_of_sentence_bigram(sentence, freq_of_bigram, freq_of_unigram, phi_count
                                              phi_count)
         if  pr_wk_given_wk_minus_1 != 0:
             log_prob_sum += math.log2(pr_wk_given_wk_minus_1)
+        else:
+            return None # To mark as undefined
     return log_prob_sum
 
 
@@ -157,11 +159,16 @@ def main():
     '''
     unsmoothed_bigram_sentence_to_prob = {}
     for sentence in test_file_tokens:
-        unsmoothed_bigram_sentence_to_prob[' '.join(sentence)] = \
-            prob_of_sentence_bigram(sentence,
-                                    unsmoothed_freq_of_bigram,
-                                    unsmoothed_freq_of_unigram,
-                                    len(training_file_tokens)) # == phi_count
+        prob_s = prob_of_sentence_bigram(sentence,
+                                         unsmoothed_freq_of_bigram,
+                                         unsmoothed_freq_of_unigram,
+                                         len(training_file_tokens))
+
+        if prob_s is None:
+            unsmoothed_bigram_sentence_to_prob[' '.join(sentence)] = 'undefined'
+        else:
+            unsmoothed_bigram_sentence_to_prob[' '.join(sentence)] = prob_s
+             # == phi_count
     print('unsmoothed_bigram_sentence_to_prob: %s' % unsmoothed_bigram_sentence_to_prob)
 
 
