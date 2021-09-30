@@ -169,7 +169,17 @@ def main():
         else:
             unsmoothed_bigram_sentence_to_prob[' '.join(sentence)] = prob_s
              # == phi_count
-    print('unsmoothed_bigram_sentence_to_prob: %s' % unsmoothed_bigram_sentence_to_prob)
+
+
+
+    # TODO: add one to each bigram (but not unigram) freqency. Then recalculate probabilities
+
+
+    '''
+    Print output
+    '''
+    print('unigram_sentence_to_prob: %s\n' % unigram_sentence_to_prob)
+    print('unsmoothed_bigram_sentence_to_prob: %s\n' % unsmoothed_bigram_sentence_to_prob)
 
 
 
