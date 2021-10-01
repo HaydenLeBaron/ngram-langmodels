@@ -219,7 +219,6 @@ def main():
         sentence_w_phi.insert(0, PHI)
         key_no_phi = ' '.join(sentence)
         key_w_phi = ' '.join(sentence_w_phi)
-
         unigram_val = None; unsmoothed_bigram_val = None; smoothed_bigram_val = None
         if unigram_sentence_to_prob[key_no_phi] == 'undefined':
             unigram_val = 'undefined'
@@ -239,9 +238,6 @@ def main():
         print('Unsmoothed Bigrams, logprob(S) = %s' % unsmoothed_bigram_val)
         print('Smoothed Bigrams, logprob(S) = %s' % smoothed_bigram_val)
         print('')
-        # TODO: round off numbers as per spec
-
-
 
 if __name__ == "__main__":
     main()
