@@ -219,13 +219,27 @@ def main():
         sentence_w_phi.insert(0, PHI)
         key_no_phi = ' '.join(sentence)
         key_w_phi = ' '.join(sentence_w_phi)
+
+        unigram_val = None; unsmoothed_bigram_val = None; smoothed_bigram_val = None
+        if unigram_sentence_to_prob[key_no_phi] == 'undefined':
+            unigram_val = 'undefined'
+        else:
+            unigram_val = round(float(unigram_sentence_to_prob[key_no_phi]), 4)
+        if unsmoothed_bigram_sentence_to_prob[key_w_phi] == 'undefined':
+            unsmoothed_bigram_val = 'undefined'
+        else:
+            unsmoothed_bigram_val = round(float(unsmoothed_bigram_sentence_to_prob[key_w_phi]), 4)
+        if smoothed_bigram_sentence_to_prob[key_w_phi] == 'undefined':
+            smoothed_bigram_val = 'undefined'
+        else:
+            smoothed_bigram_val = round(float(smoothed_bigram_sentence_to_prob[key_w_phi]), 4)
+
         print('S = %s\n' % key_no_phi)
-        print('Unsmoothed Unigrams, logprob(S) = %s' % unigram_sentence_to_prob[key_no_phi])
-        print('Unsmoothed Bigrams, logprob(S) = %s' % unsmoothed_bigram_sentence_to_prob[key_w_phi])
-        print('Smoothed Bigrams, logprob(S) = %s' % smoothed_bigram_sentence_to_prob[key_w_phi])
+        print('Unsmoothed Unigrams, logprob(S) = %s' % unigram_val)
+        print('Unsmoothed Bigrams, logprob(S) = %s' % unsmoothed_bigram_val)
+        print('Smoothed Bigrams, logprob(S) = %s' % smoothed_bigram_val)
         print('')
-
-
+        # TODO: round off numbers as per spec
 
 
 
