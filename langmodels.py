@@ -2,6 +2,8 @@ import sys
 import math
 import copy
 
+# TODO: refactor / clean up
+
 PHI = '/phi/'
 
 def flatten_list_of_list(lol):
@@ -14,23 +16,27 @@ def prob_bigram(normalized_tok_1, normalized_tok_2, freq_of_bigram, freq_of_unig
     #Pr(w{k}|w{k−1}) = Freq(w{k−1} w{k})/Freq(w{k−1}).
     #Pr(tok2|tok1)   = Freq(tok1 tok2) / Freq(tok1)
 
-    if do_smooth and freq_of_bigram.get((normalized_tok_1, normalized_tok_2)) is None:
-        if freq_of_unigram.get(normalized_tok_1) == None:
-            return 1 / phi_count
-        else:
-            return 1 / freq_of_unigram[normalized_tok_1]
-    elif freq_of_bigram.get((normalized_tok_1, normalized_tok_2)) is None: # Happens for never before seen bigram
-        return 0.0 # Probability of 0
-    elif freq_of_unigram.get(normalized_tok_1) is None: # This happens when normalized_tok_1 == PHI. PHI == number of sentences
-        return freq_of_bigram[(normalized_tok_1,
-                               normalized_tok_2)] / phi_count
+    unigram_freq = None
+    if normalized_tok_1 == PHI:
+        unigram_1_freq = phi_count
     else:
-        return freq_of_bigram[(normalized_tok_1,
-                               normalized_tok_2)] / freq_of_unigram[normalized_tok_1]
+        unigram_1_freq = freq_of_unigram[normalized_tok_1]
+
+    if do_smooth:
+        vocab_size = len(freq_of_unigram.keys())
+        if freq_of_bigram.get((normalized_tok_1, normalized_tok_2)) is None: # Happens for never before seen bigram
+            return 1 / (unigram_1_freq + vocab_size)
+        else:
+            return (freq_of_bigram[(normalized_tok_1,
+                                    normalized_tok_2)] + 1) / (unigram_1_freq + vocab_size)
+    else:
+        if freq_of_bigram.get((normalized_tok_1, normalized_tok_2)) is None: # Happens for never before seen bigram
+            return 0.0 # Probability of 0
+        else:
+            return freq_of_bigram[(normalized_tok_1,
+                                   normalized_tok_2)] / unigram_1_freq 
 
 
-
-# BKRMK
 def prob_of_sentence_unigram(sentence, freq_of_unigram, total_unigrams):
 
     log_prob_sum = 0.0
@@ -180,12 +186,6 @@ def main():
     Smoothen bigram frequency table
     '''
 
-    # Add one to each frequency
-    smoothed_freq_of_bigram = copy.deepcopy(unsmoothed_freq_of_bigram)
-    for key in smoothed_freq_of_bigram.keys():
-        smoothed_freq_of_bigram[key] += 1
-
-
     # TODO: add one to each bigram (but not unigram) freqency. Then recalculate probabilities
     """
     Calculate smoothed bigram probability for each sentence
@@ -197,19 +197,16 @@ def main():
     smoothed_bigram_sentence_to_prob = {}
     for sentence in test_file_tokens:
         prob_s = prob_of_sentence_bigram(sentence,
-                                         smoothed_freq_of_bigram,
+                                         unsmoothed_freq_of_bigram,
                                          unsmoothed_freq_of_unigram,
                                          len(training_file_tokens),
                                          True)
 
         if prob_s is None:
-            unsmoothed_bigram_sentence_to_prob[' '.join(sentence)] = 'undefined'
+            smoothed_bigram_sentence_to_prob[' '.join(sentence)] = 'undefined'
         else:
             smoothed_bigram_sentence_to_prob[' '.join(sentence)] = prob_s
              # == phi_count
-
-
-
 
 
 
@@ -224,7 +221,7 @@ def main():
 
 
 
-
+    # TODO: implement correct printing
 
 
 
