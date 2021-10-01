@@ -134,14 +134,14 @@ def main():
     '''
     Generate unsmoothed bigram frequency table
     '''
+    training_file_tokens_w_phi = copy.deepcopy(training_file_tokens)
     # Generate bigram token list with _PHI_ (sentence starter)
-    for sentence in training_file_tokens:
+    for sentence in training_file_tokens_w_phi:
         sentence.insert(0, PHI)  # Prepend PHI to every sentence
-    #print(training_file_tokens)
 
 
     unsmoothed_freq_of_bigram = {}
-    for sentence in training_file_tokens:
+    for sentence in training_file_tokens_w_phi:
         for i in range(len(sentence)-1):
             j = i+1
             normalized_tok_1 = sentence[i].lower()
@@ -160,7 +160,8 @@ def main():
     """
     Calculate unsmoothed bigram probability for each sentence
     """
-    for sentence in test_file_tokens:
+    test_file_tokens_w_phi = copy.deepcopy(test_file_tokens)
+    for sentence in test_file_tokens_w_phi:
         sentence.insert(0, PHI)  # Prepend PHI to every sentence
 
     '''
@@ -168,7 +169,7 @@ def main():
      ['/phi/', it', 'looks', 'like', 'this', '.']]
     '''
     unsmoothed_bigram_sentence_to_prob = {}
-    for sentence in test_file_tokens:
+    for sentence in test_file_tokens_w_phi:
         prob_s = prob_of_sentence_bigram(sentence,
                                          unsmoothed_freq_of_bigram,
                                          unsmoothed_freq_of_unigram,
@@ -195,11 +196,11 @@ def main():
      ['/phi/', it', 'looks', 'like', 'this', '.']]
     '''
     smoothed_bigram_sentence_to_prob = {}
-    for sentence in test_file_tokens:
+    for sentence in test_file_tokens_w_phi:
         prob_s = prob_of_sentence_bigram(sentence,
                                          unsmoothed_freq_of_bigram,
                                          unsmoothed_freq_of_unigram,
-                                         len(training_file_tokens),
+                                         len(training_file_tokens_w_phi),
                                          True)
 
         if prob_s is None:
@@ -213,15 +214,22 @@ def main():
     '''
     Print output
     '''
-    print('unigram_sentence_to_prob: %s\n' % unigram_sentence_to_prob)
-    print('----------------')
-    print('unsmoothed_bigram_sentence_to_prob: %s\n' % unsmoothed_bigram_sentence_to_prob)
-    print('----------------')
-    print('smoothed_bigram_sentence_to_prob: %s\n' % smoothed_bigram_sentence_to_prob)
+    for sentence in test_file_tokens:
+        sentence_w_phi = copy.deepcopy(sentence)
+        sentence_w_phi.insert(0, PHI)
+        key_no_phi = ' '.join(sentence)
+        key_w_phi = ' '.join(sentence_w_phi)
+        print('S = %s\n' % key_no_phi)
+        print('Unsmoothed Unigrams, logprob(S) = %s' % unigram_sentence_to_prob[key_no_phi])
+        print('Unsmoothed Bigrams, logprob(S) = %s' % unsmoothed_bigram_sentence_to_prob[key_w_phi])
+        print('Smoothed Bigrams, logprob(S) = %s' % smoothed_bigram_sentence_to_prob[key_w_phi])
+        print('')
+
+
+        # TODO: REmove initial "t" printed
 
 
 
-    # TODO: implement correct printing
 
 
 
