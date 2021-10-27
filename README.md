@@ -22,7 +22,7 @@ My name is C3P0 !
 I have a bad feeling about this .
 ```
 
-Each sentence will be divided into unigrams based solely on white space. For better results, punctuation marks should be isolated, surrounded on both sides by whitespace. This way, punctuation are solitary unigrams.
+Each sentence will be divided into unigrams based solely on white space. For better results, punctuation marks should be isolated, surrounded on both sides by whitespace. This way, punctuation marks are solitary unigrams.
 
 The *test_file* should have the same format as the *training file*.
 
