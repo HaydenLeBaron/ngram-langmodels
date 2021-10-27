@@ -7,7 +7,7 @@ This NLP project uses training text to create, unigram (no smoothing), bigram (n
 ```
 $ python3 langmodels.py <training_file> -test <test_file>
 ```
-
+OR
 ```
 $ bash langmodels.sh # to print the outputs of tests 1 and 2 to langmodels-output.txt
 ```
